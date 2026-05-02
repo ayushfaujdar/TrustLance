@@ -1,14 +1,11 @@
 import express from 'express';
-import http from 'http';
 import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 
 import connectDB from './config/db';
-import { initSocket } from './socket/socket.handler';
 import { apiRateLimit } from './middleware/rateLimit.middleware';
-import { startAutoReleaseCron } from './jobs/autoRelease.cron';
 
 // Route imports
 import authRoutes from './routes/auth.routes';
@@ -31,10 +28,16 @@ import freelancerRoutes from './routes/freelancer.routes';
 dotenv.config();
 
 const app = express();
-const server = http.createServer(app);
 
-// Initialize Socket.io
-initSocket(server);
+// Connect to DB on cold start (Vercel serverless)
+let isConnected = false;
+app.use(async (_req, _res, next) => {
+  if (!isConnected) {
+    await connectDB();
+    isConnected = true;
+  }
+  next();
+});
 
 // Security middleware
 app.use(helmet());
@@ -89,24 +92,34 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
   });
 });
 
-// Start server
-const PORT = parseInt(process.env.PORT || '5000');
+// Only start HTTP server + Socket.io + Cron when running locally (not on Vercel)
+if (!process.env.VERCEL) {
+  const http = require('http');
+  const { initSocket } = require('./socket/socket.handler');
+  const { startAutoReleaseCron } = require('./jobs/autoRelease.cron');
 
-const startServer = async () => {
-  try {
-    await connectDB();
-    startAutoReleaseCron();
-    server.listen(PORT, () => {
-      console.log(`\n🚀 TrustLance API running on port ${PORT}`);
-      console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`🌐 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}\n`);
-    });
-  } catch (error) {
-    console.error('Failed to start server:', error);
-    process.exit(1);
-  }
-};
+  const server = http.createServer(app);
+  initSocket(server);
 
-startServer();
+  const PORT = parseInt(process.env.PORT || '5000');
+
+  const startServer = async () => {
+    try {
+      await connectDB();
+      isConnected = true;
+      startAutoReleaseCron();
+      server.listen(PORT, () => {
+        console.log(`\n🚀 TrustLance API running on port ${PORT}`);
+        console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
+        console.log(`🌐 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}\n`);
+      });
+    } catch (error) {
+      console.error('Failed to start server:', error);
+      process.exit(1);
+    }
+  };
+
+  startServer();
+}
 
 export default app;
