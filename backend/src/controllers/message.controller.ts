@@ -53,7 +53,7 @@ export const getConversations = async (req: AuthRequest, res: Response): Promise
  */
 export const getMessages = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { threadId } = req.params;
+    const threadId = req.params.threadId as string;
     const userId = req.user!._id;
 
     const messages = await Message.find({ thread_id: threadId })
@@ -80,7 +80,7 @@ export const getMessages = async (req: AuthRequest, res: Response): Promise<void
  */
 export const sendMessage = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { threadId } = req.params;
+    const threadId = req.params.threadId as string;
     const { content, receiverId } = req.body;
 
     if (!content?.trim()) {

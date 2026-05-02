@@ -15,7 +15,7 @@ const submitBidSchema = z.object({
  */
 export const submitBid = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const jobId = req.params.id;
+    const jobId = req.params.id as string;
     const validated = submitBidSchema.parse(req.body);
 
     // Check job exists and is open
@@ -64,7 +64,7 @@ export const submitBid = async (req: AuthRequest, res: Response): Promise<void> 
  */
 export const acceptBid = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const jobId = req.params.id;
+    const jobId = req.params.id as string;
     const { bidId } = req.body;
 
     const job = await Job.findById(jobId);
@@ -88,7 +88,6 @@ export const acceptBid = async (req: AuthRequest, res: Response): Promise<void> 
     // Update job and bid status
     job.status = 'in_progress';
     job.accepted_bid = bid._id as any;
-    job.freelancer = bid.freelancer_id; // Frontend needs this
     await job.save();
 
     bid.status = 'accepted';
