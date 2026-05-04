@@ -50,6 +50,8 @@ export default function ProjectDetailPage() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"milestones" | "bids">("milestones");
+  const [messageTo, setMessageTo] = useState<string | null>(null);
+  const [messageText, setMessageText] = useState("");
 
   const fetchProject = async () => {
     try {
@@ -105,6 +107,27 @@ export default function ProjectDetailPage() {
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
       toast.error(err?.response?.data?.message || "Failed to accept bid");
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const sendInitialMessage = async (freelancerId: string) => {
+    if (!messageText.trim()) return;
+    try {
+      setActionLoading(`msg-${freelancerId}`);
+      // Use jobId_freelancerId as a unique thread ID for this project discussion
+      const threadId = `${id}_${freelancerId}`;
+      await api.post(`/messages/${threadId}`, { 
+        content: messageText.trim(),
+        receiverId: freelancerId 
+      });
+      toast.success("Message sent! Check your Messages tab.");
+      setMessageTo(null);
+      setMessageText("");
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      toast.error(err?.response?.data?.message || "Failed to send message");
     } finally {
       setActionLoading(null);
     }
@@ -315,14 +338,42 @@ export default function ProjectDetailPage() {
                     </p>
                   )}
                   {!project.freelancer && (
-                    <div className="mt-3 pt-3 flex gap-2" style={{ borderTop: "1px solid var(--color-border)" }}>
-                      <button 
-                        onClick={() => acceptBid(b._id)} 
-                        disabled={!!actionLoading}
-                        className="btn-primary !py-1.5 !px-4 !text-xs disabled:opacity-50"
-                      >
-                        {actionLoading === `bid-${b._id}` ? "Accepting..." : "Accept Bid"}
-                      </button>
+                    <div className="mt-3 pt-3 flex flex-col gap-3" style={{ borderTop: "1px solid var(--color-border)" }}>
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => acceptBid(b._id)} 
+                          disabled={!!actionLoading}
+                          className="btn-primary !py-1.5 !px-4 !text-xs disabled:opacity-50"
+                        >
+                          {actionLoading === `bid-${b._id}` ? "Accepting..." : "Accept Bid"}
+                        </button>
+                        
+                        <button 
+                          onClick={() => setMessageTo(messageTo === b._id ? null : b._id)} 
+                          className="btn-outline !py-1.5 !px-4 !text-xs"
+                        >
+                          {messageTo === b._id ? "Cancel Message" : "Message"}
+                        </button>
+                      </div>
+
+                      {messageTo === b._id && (
+                        <div className="flex gap-2 mt-2">
+                          <input
+                            type="text"
+                            value={messageText}
+                            onChange={(e) => setMessageText(e.target.value)}
+                            placeholder="Type a message to start the conversation..."
+                            className="input-field flex-1 !text-sm !py-1.5"
+                          />
+                          <button 
+                            onClick={() => sendInitialMessage(typeof b.freelancer_id === 'object' ? (b.freelancer_id as any)._id : b.freelancer_id)} 
+                            disabled={!messageText.trim() || !!actionLoading}
+                            className="btn-primary !py-1.5 !px-4 !text-xs disabled:opacity-50"
+                          >
+                            {actionLoading === `msg-${typeof b.freelancer_id === 'object' ? (b.freelancer_id as any)._id : b.freelancer_id}` ? "Sending..." : "Send"}
+                          </button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
