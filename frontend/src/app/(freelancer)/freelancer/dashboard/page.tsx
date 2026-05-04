@@ -130,10 +130,9 @@ export default function FreelancerDashboard() {
           ) : (
             <div className="space-y-2">
               {contracts.map((c) => (
-                <Link
+                <div
                   key={c._id}
-                  href={`/client/projects/${c._id}`}
-                  className="flex items-center justify-between p-4 rounded-xl transition-colors hover:bg-[var(--color-surface)]"
+                  className="flex items-center justify-between p-4 rounded-xl transition-colors hover:bg-[var(--color-surface)] cursor-default"
                 >
                   <div className="flex-1 min-w-0">
                     {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
@@ -153,7 +152,7 @@ export default function FreelancerDashboard() {
                   >
                     {c.status?.replace("_", " ")}
                   </span>
-                </Link>
+                </div>
               ))}
             </div>
           )}
