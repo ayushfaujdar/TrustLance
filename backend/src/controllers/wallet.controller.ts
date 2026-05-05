@@ -177,15 +177,34 @@ export const withdrawFunds = async (req: AuthRequest, res: Response): Promise<vo
  */
 export const getBalance = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const user = await User.findById(req.user!._id).select('wallet_balance escrow_balance');
+    const user = await User.findById(req.user!._id).select('wallet_balance escrow_balance role');
     if (!user) {
       res.status(404).json({ message: 'User not found' });
       return;
     }
 
+    let pending = user.escrow_balance;
+    let totalEarned = 0;
+
+    if (user.role === 'freelancer') {
+      const EscrowTransaction = (await import('../models/EscrowTransaction')).default;
+      const incoming = await EscrowTransaction.aggregate([
+        { $match: { to_user: user._id, status: 'funded' } },
+        { $group: { _id: null, total: { $sum: '$net_amount' } } }
+      ]);
+      pending = incoming.length > 0 ? incoming[0].total : 0;
+
+      const earnings = await WalletTransaction.aggregate([
+        { $match: { user_id: user._id, type: 'escrow_release' } },
+        { $group: { _id: null, total: { $sum: '$amount' } } }
+      ]);
+      totalEarned = earnings.length > 0 ? earnings[0].total : 0;
+    }
+
     res.json({
-      wallet_balance: user.wallet_balance,
-      escrow_balance: user.escrow_balance,
+      balance: user.wallet_balance,
+      pending,
+      totalEarned,
       currency: 'INR',
     });
   } catch (error) {
