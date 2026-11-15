@@ -18,7 +18,7 @@ The frontend API client attaches this header automatically when an access token 
 | --- | --- | --- |
 | Health | `GET /health` | Returns API status and timestamp. |
 | Authentication | `POST /auth/register`, `/auth/verify-email`, `/auth/login`, `/auth/refresh`, `/auth/logout`, `/auth/forgot-password`, `/auth/reset-password`, `/auth/google`; `GET /auth/me` | Implemented in `backend/src/controllers/auth.controller.ts`; auth rate limiting applies to selected routes. |
-| Users | `GET /users/freelancers`, `GET /users/:id/profile`, `PUT /users/profile` | Route placeholders currently return `501 Not Implemented`. |
+| Users | `GET /users/freelancers`, `GET /users/:id/profile`, `PUT /users/profile` | `GET /users/:id/profile` is public with optional authentication and returns only public freelancer profile fields. The other two routes are placeholders. |
 | Jobs | `GET /jobs`, `/jobs/my-jobs`, `/jobs/client-stats`, `/jobs/:id`; `POST /jobs`, `/jobs/:id/bid`, `/jobs/:id/accept-bid` | Implemented in `backend/src/controllers/job.controller.ts` and `bid.controller.ts`; all require authentication. |
 | Bids | `GET /bids` | Placeholder currently returns `501`; submitting and accepting bids is routed through the jobs endpoints above. |
 | Contracts | `GET /contracts` | Placeholder currently returns `501`. |
@@ -35,6 +35,28 @@ The frontend API client attaches this header automatically when an access token 
 | Freelancer | `GET /freelancer/stats`, `GET /freelancer/contracts` | Authenticated freelancer dashboard data. |
 
 All route paths above are relative to `/api`, except `/health`. The `501` routes are scaffolding, not usable features; see their route modules under `backend/src/routes/` before building on them.
+
+### Public freelancer profile
+
+`GET /users/:id/profile` returns `404` when the ID is invalid, does not belong to a freelancer, or the freelancer is banned. A successful response contains:
+
+```json
+{
+  "_id": "507f1f77bcf86cd799439011",
+  "name": "Asha Freelancer",
+  "bio": "Builds accessible web applications.",
+  "skills": ["TypeScript", "React"],
+  "avatar": "https://example.com/avatar.png",
+  "rating": 4.8,
+  "completedJobs": 3,
+  "joinedAt": "2025-01-15T00:00:00.000Z",
+  "portfolio": [
+    { "title": "Portfolio item 1", "url": "https://example.com/project" }
+  ]
+}
+```
+
+The stored `User.portfolio` values remain URL strings; the API adds stable display titles for the profile page. Credentials, wallet/KYC data, refresh tokens, and other private account fields are never returned.
 
 ## Realtime Events
 
