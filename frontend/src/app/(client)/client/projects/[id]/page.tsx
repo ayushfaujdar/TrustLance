@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import DashboardShell from "@/components/DashboardShell";
@@ -50,6 +50,9 @@ type Project = {
   created_at: string;
 };
 
+const getFreelancerId = (freelancerId: Bid["freelancer_id"]): string =>
+  typeof freelancerId === "string" ? freelancerId : freelancerId._id;
+
 export default function ProjectDetailPage() {
   const params = useParams();
   const id = params.id as string;
@@ -60,7 +63,7 @@ export default function ProjectDetailPage() {
   const [messageTo, setMessageTo] = useState<string | null>(null);
   const [messageText, setMessageText] = useState("");
 
-  const fetchProject = async () => {
+  const fetchProject = useCallback(async () => {
     try {
       const { data } = await api.get<Project>(`/jobs/${id}`);
       let deliverables: Deliverable[] = [];
@@ -82,11 +85,11 @@ export default function ProjectDetailPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
-    if (id) fetchProject();
-  }, [id]);
+    if (id) void fetchProject();
+  }, [fetchProject, id]);
 
   const fundMilestone = async (milestoneId: string) => {
     try {
@@ -276,8 +279,7 @@ export default function ProjectDetailPage() {
                   </div>
                 );
               }
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              return displayMilestones.map((m: any, i: number) => {
+              return displayMilestones.map((m: Milestone, i: number) => {
                 const ms = statusColor[m.status] || statusColor.pending;
                 return (
                   <div key={m._id || i} className="card">
@@ -392,11 +394,11 @@ export default function ProjectDetailPage() {
                             className="input-field flex-1 !text-sm !py-1.5"
                           />
                           <button 
-                            onClick={() => sendInitialMessage(typeof b.freelancer_id === 'object' ? (b.freelancer_id as any)._id : b.freelancer_id)} 
+                            onClick={() => sendInitialMessage(getFreelancerId(b.freelancer_id))}
                             disabled={!messageText.trim() || !!actionLoading}
                             className="btn-primary !py-1.5 !px-4 !text-xs disabled:opacity-50"
                           >
-                            {actionLoading === `msg-${typeof b.freelancer_id === 'object' ? (b.freelancer_id as any)._id : b.freelancer_id}` ? "Sending..." : "Send"}
+                            {actionLoading === `msg-${getFreelancerId(b.freelancer_id)}` ? "Sending..." : "Send"}
                           </button>
                         </div>
                       )}
