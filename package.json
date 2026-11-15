@@ -1,14 +1,14 @@
 {
-  "name": "escrow",
+  "name": "trustlance",
   "version": "1.0.0",
-  "description": "",
+  "description": "Freelance marketplace with escrow and project workflows",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "type": "commonjs",
   "dependencies": {
     "docx": "^9.6.1"
