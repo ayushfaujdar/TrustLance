@@ -23,7 +23,7 @@ The frontend API client attaches this header automatically when an access token 
 | Bids | `GET /bids` | Placeholder currently returns `501`; submitting and accepting bids is routed through the jobs endpoints above. |
 | Contracts | `GET /contracts` | Placeholder currently returns `501`. |
 | Escrow | `POST /escrow/fund-milestone`; `GET /escrow/contract/:contractId` | Authenticated escrow operations. |
-| Deliverables | `POST /deliverables/upload`, `GET /deliverables/:id/preview`, `POST /deliverables/:id/approve`, `POST /deliverables/:id/request-revision`, `GET /deliverables/contract/:contractId` | Upload is restricted to freelancers; other routes require authentication. Approval can trigger escrow release. |
+| Deliverables | `POST /deliverables/upload`, `GET /deliverables/:id/preview`, `POST /deliverables/:id/approve`, `POST /deliverables/:id/request-revision`, `GET /deliverables/contract/:contractId` | Upload is restricted to freelancers; other routes require authentication. Client approval is deliverable-based: the client project page resolves the submitted deliverable for a milestone, then calls `POST /deliverables/:id/approve`; this route authorizes the contract client and releases the associated funded escrow once. There is no `/escrow/approve` route. |
 | Disputes | `GET /disputes` | Placeholder currently returns `501`. |
 | Messages | `GET /messages/conversations`, `GET /messages/:threadId`, `POST /messages/:threadId` | Authenticated message history and send endpoints; realtime events are described below. |
 | Wallet | `POST /wallet/create-order`, `/wallet/verify-payment`, `/wallet/withdraw`; `GET /wallet/balance`, `/wallet/transactions` | Authenticated wallet and Razorpay flows. Use test credentials during development. |
