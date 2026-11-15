@@ -186,7 +186,7 @@ export const getBalance = async (req: AuthRequest, res: Response): Promise<void>
     let pending = user.escrow_balance;
     let totalEarned = 0;
 
-    if (user.role === 'freelancer') {
+    if (user.role.includes('freelancer')) {
       const EscrowTransaction = (await import('../models/EscrowTransaction')).default;
       const incoming = await EscrowTransaction.aggregate([
         { $match: { to_user: user._id, status: 'funded' } },
