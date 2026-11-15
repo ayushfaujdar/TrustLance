@@ -142,10 +142,11 @@ export default function LoginPage() {
 
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label className="text-xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: "var(--color-ink-3)" }}>
+                <label htmlFor="login-email" className="text-xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: "var(--color-ink-3)" }}>
                   Email Address
                 </label>
                 <input
+                  id="login-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -158,7 +159,7 @@ export default function LoginPage() {
 
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--color-ink-3)" }}>
+                  <label htmlFor="login-password" className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--color-ink-3)" }}>
                     Password
                   </label>
                   <Link
@@ -171,6 +172,7 @@ export default function LoginPage() {
                 </div>
                 <div className="relative">
                   <input
+                    id="login-password"
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
