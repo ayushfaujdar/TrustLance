@@ -86,12 +86,13 @@ Never commit `.env` files, private keys, provider secrets, or production credent
 ## Build and Checks
 
 ```sh
+npm test
 npm --prefix backend run build
 npm --prefix frontend run lint
 npm --prefix frontend run build
 ```
 
-Automated test scripts are not configured yet. Please include appropriate verification details with contributions.
+The backend test suite uses Node's built-in test runner through `tsx` and does not require MongoDB, provider credentials, or production records. Add tests under `backend/test/**/*.test.ts`; the root `npm test` command delegates to the backend suite.
 
 ## Contributing and Security
 

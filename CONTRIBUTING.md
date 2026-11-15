@@ -16,7 +16,7 @@ Follow the [local development instructions](README.md#local-development). Make c
 
 - Describe the problem and the behavior your change introduces.
 - Link related issues and call out any API, database, or environment-variable changes.
-- Add or update tests when practical. Automated test scripts are not configured yet, so include the checks you ran and their results.
+- Add or update tests when practical. Run `npm test` and include the checks you ran and their results.
 - Run the relevant checks before submitting:
 
   ```sh
