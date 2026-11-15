@@ -22,7 +22,7 @@ The frontend lives in `frontend/`; the Express API, models, and services live in
 3. API routes delegate to controllers, which use Mongoose models and services for business logic and integrations.
 4. The frontend connects to `NEXT_PUBLIC_SOCKET_URL`; Socket.IO authenticates using the access token and joins a per-user room for messaging and notifications.
 
-See [api.md](api.md) for the route inventory. The frontend API helper's built-in fallback URL is `http://localhost:5001/api`; for the local backend in this repository, set `NEXT_PUBLIC_API_URL=http://localhost:5000/api` as shown in `frontend/.env.example`.
+See [api.md](api.md) for the route inventory. The frontend API helper's built-in fallback URL is `http://localhost:5000/api`, matching the backend's default port; set `NEXT_PUBLIC_API_URL` (as shown in `frontend/.env.example`) to override it.
 
 ## Runtime Services
 
