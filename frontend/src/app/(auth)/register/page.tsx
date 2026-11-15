@@ -463,6 +463,9 @@ function RegisterForm() {
               <div className="max-w-[240px] mx-auto mb-6">
                 <input
                   type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  pattern="[0-9]*"
                   maxLength={6}
                   value={otp}
                   onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
