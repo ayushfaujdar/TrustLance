@@ -11,8 +11,14 @@ type Milestone = {
   _id: string;
   title: string;
   amount: number;
-  status: "pending" | "funded" | "in_progress" | "review" | "completed" | "disputed" | "delivered" | "approved";
+  status: "pending" | "funded" | "in_progress" | "review" | "delivered" | "approved" | "completed" | "disputed";
   description: string;
+};
+
+type Deliverable = {
+  _id: string;
+  milestone_id: string;
+  status: "submitted" | "approved" | "revision_requested" | "disputed";
 };
 
 type Bid = {
@@ -40,6 +46,7 @@ type Project = {
     _id: string;
     milestones: Milestone[];
   };
+  deliverables?: Deliverable[];
   created_at: string;
 };
 
@@ -58,8 +65,21 @@ export default function ProjectDetailPage() {
 
   const fetchProject = useCallback(async () => {
     try {
-      const { data } = await api.get(`/jobs/${id}`);
-      setProject(data);
+      const { data } = await api.get<Project>(`/jobs/${id}`);
+      let deliverables: Deliverable[] = [];
+
+      if (data.contract?._id) {
+        try {
+          const response = await api.get<{ deliverables: Deliverable[] }>(
+            `/deliverables/contract/${data.contract._id}`
+          );
+          deliverables = response.data.deliverables;
+        } catch {
+          // Keep the project view usable if deliverable history is unavailable.
+        }
+      }
+
+      setProject({ ...data, deliverables });
     } catch {
       setProject(null);
     } finally {
@@ -89,8 +109,12 @@ export default function ProjectDetailPage() {
   const approveMilestone = async (milestoneId: string) => {
     try {
       if (!project?.contract?._id) throw new Error("Contract not found");
+      const deliverable = project.deliverables?.find(
+        (item) => item.milestone_id === milestoneId && item.status === "submitted"
+      );
+      if (!deliverable) throw new Error("No submitted deliverable found for this milestone");
       setActionLoading(`approve-${milestoneId}`);
-      await api.post(`/escrow/approve`, { contractId: project.contract._id, milestoneId });
+      await api.post(`/deliverables/${deliverable._id}/approve`);
       toast.success("Milestone approved! Payment released.");
       await fetchProject();
     } catch (error: unknown) {
@@ -141,6 +165,8 @@ export default function ProjectDetailPage() {
     funded: { color: "var(--color-accent)", bg: "var(--color-accent-lt)" },
     in_progress: { color: "#6C63FF", bg: "#EAE9FF" },
     review: { color: "var(--color-accent)", bg: "var(--color-accent-lt)" },
+    delivered: { color: "var(--color-accent)", bg: "var(--color-accent-lt)" },
+    approved: { color: "var(--color-primary)", bg: "var(--color-primary-lt)" },
     completed: { color: "var(--color-primary)", bg: "var(--color-primary-lt)" },
     disputed: { color: "var(--color-danger)", bg: "var(--color-danger-lt)" },
     open: { color: "var(--color-accent)", bg: "var(--color-accent-lt)" },
@@ -283,7 +309,7 @@ export default function ProjectDetailPage() {
                           {actionLoading === `fund-${m._id}` ? "Funding..." : "Fund Milestone"}
                         </button>
                       )}
-                      {m.status === "review" && (
+                      {(m.status === "review" || m.status === "delivered") && (
                         <>
                           <button 
                             onClick={() => approveMilestone(m._id)} 
@@ -297,7 +323,7 @@ export default function ProjectDetailPage() {
                           </Link>
                         </>
                       )}
-                      {m.status === "completed" && (
+                      {(m.status === "completed" || m.status === "approved") && (
                         <span className="text-xs font-medium" style={{ color: "var(--color-primary)" }}>✓ Completed</span>
                       )}
                     </div>
