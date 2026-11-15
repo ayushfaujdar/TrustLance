@@ -8,7 +8,6 @@ import api from "@/lib/api";
 type Profile = {
   _id: string;
   name: string;
-  email: string;
   bio: string;
   skills: string[];
   avatar?: string;
