@@ -302,10 +302,11 @@ function RegisterForm() {
 
               <div className="space-y-4">
                 <div>
-                  <label className="text-xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: "var(--color-ink-3)" }}>
+                  <label htmlFor="register-name" className="text-xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: "var(--color-ink-3)" }}>
                     Full Name *
                   </label>
                   <input
+                    id="register-name"
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -316,10 +317,11 @@ function RegisterForm() {
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: "var(--color-ink-3)" }}>
+                  <label htmlFor="register-email" className="text-xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: "var(--color-ink-3)" }}>
                     Email Address *
                   </label>
                   <input
+                    id="register-email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -329,11 +331,12 @@ function RegisterForm() {
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: "var(--color-ink-3)" }}>
+                  <label htmlFor="register-password" className="text-xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: "var(--color-ink-3)" }}>
                     Password *
                   </label>
                   <div className="relative">
                     <input
+                      id="register-password"
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
@@ -381,10 +384,11 @@ function RegisterForm() {
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: "var(--color-ink-3)" }}>
+                  <label htmlFor="register-phone" className="text-xs font-semibold uppercase tracking-wider mb-1.5 block" style={{ color: "var(--color-ink-3)" }}>
                     Phone (optional)
                   </label>
                   <input
+                    id="register-phone"
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
@@ -461,7 +465,11 @@ function RegisterForm() {
               </p>
 
               <div className="max-w-[240px] mx-auto mb-6">
+                <label htmlFor="register-otp" className="sr-only">
+                  Verification code
+                </label>
                 <input
+                  id="register-otp"
                   type="text"
                   inputMode="numeric"
                   autoComplete="one-time-code"
